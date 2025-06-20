@@ -11,13 +11,6 @@ import threading
 import math
 from rplidar import RPLidar
 
-
-
-
-
-
-
-
 # Constants
 PCA_FREQ = 1500
 fullSpeed = 0xFFFF  # 65535
@@ -27,19 +20,11 @@ speedCoef = 0.4     # Speed reduction factor (increased from 0.3 to 0.4 for fast
 rmodeSpeedCoef = 0.5  # Special speed coefficient for R-mode (higher for faster waypoint navigation)
 rmodeBackwardSpeedCoef = 0.6  # Special speed coefficient for R-mode backward (even higher for faster backward movement)
 
-
 # LiDAR Configuration
 LIDAR_PORT = '/dev/ttyUSB0'  # Default USB port for RP-Lidar A1M8
 LIDAR_BAUDRATE = 115200      # Default baudrate for A1M8
 LIDAR_TIMEOUT = 1.0          # Timeout for LiDAR operations
 LIDAR_SCAN_FREQ = 5.5        # Hz - Default scan frequency for A1M8
-
-
-
-
-
-
-
 
 # Arah putaran motor
 arahMAJU = 0xFFFF    # HIGH
@@ -60,26 +45,12 @@ pinPWM = {
  4: 7    # Motor 4 PWM pin (belakang kiri)
 }
 
-
-
-
-
-
-
-
 pinDIR = {
  1: 14,  # Motor 1 direction pin (depan kiri)
  2: 2,   # Motor 2 direction pin (depan kanan)
  3: 10,  # Motor 3 direction pin (belakang kanan)
  4: 6    # Motor 4 direction pin (belakang kiri)
 }
-
-
-
-
-
-
-
 
 # MQTT Topics
 TOPIC_PHYSICAL_CMD = "robot/physical/cmd_vel"    # Topic untuk perintah fisik
@@ -88,18 +59,10 @@ TOPIC_SECONDARY_CMD = "robot/secondary/cmd_vel"  # Topic untuk secondary mode
 TOPIC_RMODE_CMD = "robot/rmode/cmd_vel"          # Topic untuk R-mode
 TOPIC_NAV_CHARGING_CMD = "robot/nav_charging/cmd_vel"  # Topic untuk navigation charging mode
 
-
 # LiDAR Real-World Topics
 TOPIC_LIDAR_REAL_WORLD_DATA = "robot/lidar/real_world_data"  # Topic untuk data LiDAR real-world
 TOPIC_LIDAR_STATUS = "robot/lidar/status"  # Topic untuk status LiDAR
 TOPIC_MAPPING_DATA = "robot/mapping/data"  # Topic untuk data mapping
-
-
-
-
-
-
-
 
 class RobotTester:
  def __init__(self):
@@ -152,7 +115,6 @@ class RobotTester:
          print(f"[ERROR] Failed to initialize PCA9685: {str(e)}")
          raise
 
-
  def on_mqtt_connect(self, client, userdata, flags, rc):
      if rc == 0:
          print("[MQTT] Connected successfully")
@@ -172,7 +134,6 @@ class RobotTester:
          print("[MQTT] Subscribed to LiDAR real-world topics")
      else:
          print(f"[MQTT] Connection failed with code {rc}")
-
 
  def on_mqtt_message(self, client, userdata, msg):
      try:
@@ -260,7 +221,6 @@ class RobotTester:
      except Exception as e:
          print(f"[ERROR] Failed to process MQTT message: {str(e)}")
 
-
  def set_motor(self, motor_num, speed, direction):
      """Set motor speed and direction"""
      try:
@@ -278,13 +238,11 @@ class RobotTester:
      except Exception as e:
          print(f"[ERROR] Failed to set motor {motor_num}: {e}")
 
-
  def update_status(self, mode, motor_status):
      """Update robot status"""
      self.current_mode = mode
      self.motor_status = motor_status
      self.last_command_time = time.time()
-
 
  def stop_all_motors(self):
      """Stop all motors"""
@@ -292,7 +250,6 @@ class RobotTester:
          self.pca.channels[pinPWM[motor]].duty_cycle = 0
          self.pca.channels[pinDIR[motor]].duty_cycle = 0
      self.update_status(self.current_mode, "STOPPED")
-
 
  def maju(self, speed_factor=1.0):
      """Move forward"""
@@ -306,7 +263,6 @@ class RobotTester:
      self.update_status(self.current_mode, f"FORWARD (speed: {speed_factor:.2f})")
     
      # Enable obstacle avoidance mode when moving forward
-
 
  def mundur(self, speed_factor=1.0):
      """Move backward"""
@@ -322,7 +278,6 @@ class RobotTester:
      self.set_motor(4, speed, True)  # Motor 4 backward (arahMUNDUR)
      self.update_status(self.current_mode, f"BACKWARD (speed: {speed_factor:.2f})")
 
-
  def putar_kiri(self, speed_factor=1.0):
      """Turn left"""
      # Use higher speed coefficient for R-mode
@@ -334,7 +289,6 @@ class RobotTester:
      self.set_motor(4, speed, True)   # Motor 4 forward
      self.update_status(self.current_mode, f"TURNING LEFT (speed: {speed_factor:.2f})")
 
-
  def putar_kanan(self, speed_factor=1.0):
      """Turn right"""
      # Use higher speed coefficient for R-mode
@@ -345,7 +299,6 @@ class RobotTester:
      self.set_motor(3, speed, True)   # Motor 3 forward
      self.set_motor(4, speed, False)  # Motor 4 backward
      self.update_status(self.current_mode, f"TURNING RIGHT (speed: {speed_factor:.2f})")
-
 
  def test_individual_motors(self):
      """Test each motor individually"""
@@ -374,7 +327,6 @@ class RobotTester:
          self.set_motor(motor, 0, False)
          time.sleep(1)
 
-
  def display_status(self):
      """Display current robot status"""
      current_time = time.time()
@@ -395,7 +347,6 @@ class RobotTester:
      print(f"Time since last command: {time_since_last_command:.1f}s")
      print(f"MQTT Connected: {'YES' if self.mqtt_client else 'NO'}")
      print(f"{'='*60}\n")
-
 
  def run_tests(self):
      """Run all tests and start MQTT command handling"""
@@ -435,7 +386,6 @@ class RobotTester:
              self.mqtt_client.loop_stop()
              self.mqtt_client.disconnect()
          print("[STATUS] Cleanup completed")
-
 
  def calculate_speed_factor(self, linear_x, angular_z, mode):
      """Calculate speed factor based on velocity and mode"""
@@ -532,7 +482,6 @@ class RobotTester:
     
      return max(0.0, min(1.0, speed_factor))  # Ensure between 0 and 1
 
-
  def init_lidar(self):
      """Initialize RP-Lidar A1M8 using exact same approach as test_lidar.py"""
      try:
@@ -560,7 +509,6 @@ class RobotTester:
          print(f"[ERROR] Failed to start LiDAR streaming: {str(e)}")
          self.is_running = False
          self.lidar = None
-
 
  def _lidar_streaming_loop(self):
      """Main LiDAR streaming loop - exact same as test_lidar.py"""
@@ -590,7 +538,6 @@ class RobotTester:
          print(f"[ERROR] LiDAR streaming error: {str(e)}")
      finally:
          self.stop_lidar_streaming()
-
 
  def send_lidar_data(self, scan_data):
      """Send LiDAR data to roam.py via MQTT - exact same as test_lidar.py"""
@@ -624,7 +571,6 @@ class RobotTester:
      except Exception as e:
          print(f"[ERROR] Failed to send LiDAR data: {str(e)}")
 
-
  def stop_lidar_streaming(self):
      """Stop LiDAR streaming - exact same as test_lidar.py"""
      self.is_running = False
@@ -649,11 +595,9 @@ class RobotTester:
     
      print("[LIDAR] Streaming stopped")
 
-
  def get_lidar_data(self):
      """Get current LiDAR data"""
      return self.lidar_data if self.lidar_data else None
-
 
  def handle_real_world_lidar_data(self, lidar_data):
      """Handle real-world LiDAR data from MQTT - simplified version"""
@@ -678,7 +622,6 @@ class RobotTester:
      except Exception as e:
          print(f"[ERROR] Failed to handle LiDAR data: {str(e)}")
 
-
  def perform_obstacle_avoidance(self, front_min, left_min, right_min, back_min):
      """Perform obstacle avoidance based on LiDAR data - simplified version"""
      try:
@@ -695,7 +638,6 @@ class RobotTester:
             
      except Exception as e:
          print(f"[ERROR] Obstacle avoidance failed: {str(e)}")
-
 
  def handle_mapping_data(self, mapping_data):
      """Handle mapping data from external sources"""
@@ -717,7 +659,6 @@ class RobotTester:
      except Exception as e:
          print(f"[ERROR] Failed to handle mapping data: {str(e)}")
 
-
  def start_mapping(self):
      """Start mapping mode"""
      self.mapping_active = True
@@ -733,8 +674,7 @@ class RobotTester:
          }
          self.mqtt_client.publish(TOPIC_MAPPING_DATA, json.dumps(status_data))
 
-
- def stop_mapping(self):
+def stop_mapping(self):
      """Stop mapping mode"""
      self.mapping_active = False
      print(f"[MAPPING] Mapping mode stopped. Total data points: {len(self.mapping_data)}")
@@ -767,7 +707,6 @@ class RobotTester:
             
      except Exception as e:
          print(f"[ERROR] Failed to add mapping data: {str(e)}")
-
 
  def save_mapping_data(self):
      """Save mapping data to file"""
@@ -802,7 +741,6 @@ class RobotTester:
      except Exception as e:
          print(f"[ERROR] Failed to save mapping data: {str(e)}")
 
-
  def clear_mapping_data(self):
      """Clear mapping data"""
      self.mapping_data = []
@@ -816,7 +754,6 @@ class RobotTester:
              "message": "Mapping data cleared"
          }
          self.mqtt_client.publish(TOPIC_MAPPING_DATA, json.dumps(status_data))
-
 
  def start_lidar_streaming(self):
      """Start LiDAR streaming - exact same as test_lidar.py"""
@@ -859,7 +796,6 @@ class RobotTester:
          "robot_orientation": self.robot_orientation
      }
 
-
  def check_lidar_status(self):
      """Check LiDAR status - simplified version"""
      if not self.lidar:
@@ -885,7 +821,6 @@ class RobotTester:
      except Exception as e:
          print(f"[LIDAR STATUS] ❌ Error checking status: {str(e)}")
          return False
-
 
 if __name__ == "__main__":
    print("=== BCR BOT TEST ROBOT - FULL INTEGRATION ===")
