@@ -1,0 +1,33 @@
+# BCR Bot Standalone - Python Dependencies
+# Install with: pip install -r requirements.txt
+
+# Hardware Control
+adafruit-circuitpython-pca9685>=1.0.0
+RPi.GPIO>=0.7.0
+
+# LiDAR A1M8 Support
+rplidar>=1.0.0
+
+# MQTT Communication
+paho-mqtt>=1.6.0
+
+# Serial Communication
+pyserial>=3.5
+
+# System Libraries (usually pre-installed)
+# time - built-in
+# threading - built-in  
+# math - built-in
+# sys - built-in
+# os - built-in
+# signal - built-in
+# queue - built-in
+# random - built-in
+# json - built-in
+# select - built-in
+# termios - built-in
+# tty - built-in
+
+# Optional: For development and debugging
+# ipython>=7.0.0
+# jupyter>=1.0.0 
