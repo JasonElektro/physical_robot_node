@@ -199,9 +199,6 @@ Algoritma robot untuk mengambil keputusan, apakah belok kiri atau kanan, dimulai
 ```
 START → Input LiDAR Data (Front, Left, Right)
   ↓
-🚨 CRITICAL CHECK (< 0.25m)
-  ↓ YES → STOP ALL MOTORS
-  ↓ NO
 ⚠️  EMERGENCY CHECK (< 0.4m)  
   ↓ YES → EMERGENCY STOP
   ↓ NO
