@@ -188,6 +188,89 @@ MQTT_PORT = 1883
 MQTT_TOPIC = "robot/lidar/real_world_data"
 ```
 
+## Algoritma Decision Tree - Pengambilan Keputusan Robot
+
+### 🧠 **Algoritma Navigasi Otonom**
+
+Algoritma robot untuk mengambil keputusan, apakah belok kiri atau kanan, dimulai dengan menerima input data jarak dari sensor LiDAR A1M8 (depan, kiri, kanan), kemudian mengevaluasi kondisi keamanan secara bertingkat: emergency range (0.25-0.4m) untuk emergency stop, dan obstacle detection (< 1.0m) untuk mode obstacle avoidance. Pada fase obstacle avoidance, robot membandingkan ruang bebas kiri dan kanan (if left_min > right_min then turn_left() else turn_right()), sementara kondisi khusus both_sides_blocked akan memicu manuver backup diikuti belok kiri sebagai preferensi default. Algoritma ini dilengkapi dengan adaptive speed adjustment yang mengatur kecepatan robot berdasarkan dekatnya obstacle dengan robot.
+
+### 📊 **Decision Tree Flow**
+
+```
+START → Input LiDAR Data (Front, Left, Right)
+  ↓
+🚨 CRITICAL CHECK (< 0.25m)
+  ↓ YES → STOP ALL MOTORS
+  ↓ NO
+⚠️  EMERGENCY CHECK (< 0.4m)  
+  ↓ YES → EMERGENCY STOP
+  ↓ NO
+🔍 OBSTACLE DETECTED? (< 1.0m)
+  ↓ YES
+🚧 BOTH SIDES BLOCKED? (left < 0.6m AND right < 0.6m)
+  ↓ YES → BACKUP + TURN LEFT
+  ↓ NO
+⚖️  COMPARE SPACE: left_min vs right_min
+  ↓
+🔄 LEFT > RIGHT?
+  ↓ YES → TURN LEFT
+  ↓ NO → TURN RIGHT
+  ↓
+✅ NO OBSTACLES → MOVE FORWARD
+```
+
+### 🎯 **Keputusan Belok Kiri/Kanan**
+
+Robot menggunakan **algoritma perbandingan sederhana namun efektif**:
+
+```python
+# Core decision logic
+if self.left_min > self.right_min:
+    direction = "TURN LEFT"   # Ruang kiri lebih luas
+else:
+    direction = "TURN RIGHT"  # Ruang kanan lebih luas
+```
+
+### 📈 **Parameter Keputusan**
+
+```python
+# Input dari LiDAR A1M8
+self.lidar_min_distance  # Jarak depan (180°)
+self.left_min           # Jarak kiri (90°) 
+self.right_min          # Jarak kanan (270°)
+
+# Threshold keputusan
+CRITICAL_DISTANCE = 0.25m      # Emergency stop total
+EMERGENCY_DISTANCE = 0.4m      # Emergency stop  
+OBSTACLE_DISTANCE = 1.0m       # Mulai obstacle avoidance
+SIDE_BLOCKED = 0.6m           # Threshold both sides blocked
+```
+
+### 🔧 **Mode-Specific Behavior**
+
+#### Primary Mode
+- **Simple Greedy**: Pilih arah dengan ruang terbesar
+- **Default Preference**: Kiri jika ruang sama besar
+- **Backup Strategy**: Mundur jika kedua sisi blocked
+
+#### R-Mode  
+- **Enhanced Logic**: Backup before turning
+- **Conservative**: Lower speed, higher safety margin
+- **Smart Recovery**: Multiple escape strategies
+
+#### Charging Mode
+- **Safety First**: Slower turns, earlier stops
+- **Consistent Direction**: Minimal direction changes
+- **Obstacle Priority**: Avoid obstacles > reach target
+
+### ⚡ **Optimasi & Fitur**
+
+- **Hysteresis Margin**: 0.3m untuk prevent oscillation
+- **Dynamic Speed**: Adjust kecepatan based on obstacle distance
+- **Window Averaging**: 15° window untuk smooth readings
+- **Real-time Processing**: O(1) complexity per decision
+- **Adaptive Behavior**: Speed reduction saat obstacle dekat
+
 ## Monitoring & Debugging
 
 ### Real-time Status Display
