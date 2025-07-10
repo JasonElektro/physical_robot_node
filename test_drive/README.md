@@ -130,7 +130,7 @@ The script includes detailed debug output showing:
 
 ```
 Front
-[1] --- [2]
+[2] --- [1]
  |       |
  |       |
 [4] --- [3]
